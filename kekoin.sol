@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
-import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
-contract permissions is usingOraclize
+//import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+contract permissions
 {
     address owner = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c;
     address admin;
@@ -17,7 +17,7 @@ contract permissions is usingOraclize
 }
     modifier onlyAdmin()
 {
-    require(msg.sender == admin);
+    require(msg.sender == admin || msg.sender == owner);
     _;
 }
 }
@@ -28,7 +28,6 @@ contract kekoin is permissions
     string public constant name = "kekoin";
     string public constant symbol = "KEK";
     uint8 public constant decimals = 18;
-    uint public coef = 1000000000000;
 
     uint public totalSupply = 13372280;
 
@@ -91,26 +90,54 @@ contract kekoin is permissions
 }
     function getPrice()
     {
-        oraclize_query('URL',"html(https://myfin.by/crypto-rates/ethereum-rub).xpath(//*[contains(@class, 'birzha_info_head_rates')]/text())");
-    
+        //oraclize_query('URL',"html(https://myfin.by/crypto-rates/ethereum-rub).xpath(//*[contains(@class, 'birzha_info_head_rates')]/text())");
     }
 
-
-    function() external payable
-{
-   
-    owner.transfer(msg.value);
-    uint buy = msg.value / coef;
-    if(buy < totalSupply){  
-    totalSupply -= buy;
-    balances[msg.sender] += buy;
-    }
-    else {msg.sender.transfer(msg.value);}
 }
-    function changeCoef(uint newCoef) onlyOwner onlyAdmin
+
+contract sales is kekoin
+{
+    uint public coef = 1000000000000;
+    uint stage1 = 1509753600;
+    uint stage2 = 1510012800;
+    uint stage3 = 1510704000;
+    uint bonus = 0;
+    
+    function() external payable
+    {
+        owner.transfer(msg.value);
+        uint buy = msg.value / coef;
+        if(bonus == 0)
+        {
+             if(buy < totalSupply)
+             {  
+                totalSupply -= buy;
+                balances[msg.sender] += buy;
+             }
+        }
+        
+        if(buy < totalSupply)
+        {  
+            totalSupply -= (buy + (buy/bonus));
+            balances[msg.sender] += (buy + (buy/bonus));
+        }
+    else {msg.sender.transfer(msg.value);}
+    }
+    
+    function changeCoef(uint newCoef) onlyAdmin
     {
         coef = newCoef;
     }
-
+    
+    function isSale()
+    {
+        if(now >= stage1 && now <= stage2)
+        {
+            bonus = 2;
+        }
+        if(now >= stage2 && now <= stage3)
+        {
+            bonus = 4;
+        }
+    }
 }
-
