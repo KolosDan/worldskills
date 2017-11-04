@@ -101,27 +101,28 @@ contract sales is kekoin
     uint stage1 = 1509753600;
     uint stage2 = 1510012800;
     uint stage3 = 1510704000;
-    uint bonus = 0;
+    uint public bonus = 0;
+    bool canSale = true;
     
     function() external payable
-    {
+    {   
+        if(canSale==true){
         owner.transfer(msg.value);
         uint buy = msg.value / coef;
-        if(bonus == 0)
+        if(bonus == 0 && buy < totalSupply)
         {
-             if(buy < totalSupply)
-             {  
-                totalSupply -= buy;
-                balances[msg.sender] += buy;
-             }
+            totalSupply -= buy;
+            balances[msg.sender] += buy;
         }
         
-        if(buy < totalSupply)
+        else if(buy < totalSupply)
         {  
             totalSupply -= (buy + (buy/bonus));
             balances[msg.sender] += (buy + (buy/bonus));
         }
     else {msg.sender.transfer(msg.value);}
+        } 
+    else{throw;}
     }
     
     function changeCoef(uint newCoef) onlyAdmin
@@ -133,11 +134,22 @@ contract sales is kekoin
     {
         if(now >= stage1 && now <= stage2)
         {
-            bonus = 2;
+        bonus = 2;
         }
+        
         if(now >= stage2 && now <= stage3)
         {
-            bonus = 4;
+        bonus = 4;
         }
+        
+    }
+    
+    function startSale()
+    {
+        canSale = true;
+    }
+    function stopSale()
+    {
+        canSale = false;
     }
 }
