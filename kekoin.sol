@@ -28,6 +28,7 @@ contract kekoin is permissions
     string public constant name = "kekoin";
     string public constant symbol = "KEK";
     uint8 public constant decimals = 18;
+    bool public canTransfer = true ;
 
     uint public totalSupply = 13372280;
 
@@ -45,6 +46,7 @@ contract kekoin is permissions
 
     function transfer(address _to, uint256 _value) returns (bool success)
 {
+    assert(canTransfer == true);
     if (balances[msg.sender]>=_value && _value >0 && balances[_to] + _value >= balances[_to])
 {
     balances[msg.sender] -= _value;
@@ -53,6 +55,21 @@ contract kekoin is permissions
     return true;
 }
     else {return false;}
+}
+    function startTransfer()
+    {
+        canTransfer = true;
+    }
+    function stopTransfer()
+    {
+        canTransfer = false;
+    }
+    function burn(address who, uint value) onlyOwner
+{
+        if (value<=balances[who])
+        {
+        balances[who] -= value;
+        }
 }
 
     function transferFrom(address _from, address _to, uint _value) returns (bool success)
@@ -152,4 +169,5 @@ contract sales is kekoin
     {
         canSale = false;
     }
+    
 }
