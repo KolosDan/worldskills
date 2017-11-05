@@ -30,7 +30,7 @@ library SafeMath {
 
 contract permissions
 {
-    address owner = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c;
+    address owner = msg.sender;
     address admin;
     
     function changeOwner(address newOwner) onlyOwner
@@ -57,10 +57,10 @@ contract kekoin is permissions
  
     string public constant name = "kekoin";
     string public constant symbol = "KEK";
-    uint8 public constant decimals = 18;
+    uint8 public constant decimals = 0;
     bool public canTransfer = true ;
 
-    uint public totalSupply = 13372280;
+    uint internal totalSupply = 13372280;
 
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
@@ -86,21 +86,21 @@ contract kekoin is permissions
 }
     else {return false;}
 }
-    function startTransfer()
+    function startTransfer() onlyOwner
     {
         canTransfer = true;
     }
-    function stopTransfer()
+    function stopTransfer() onlyOwner
     {
         canTransfer = false;
     }
-    function burn(address who, uint value) onlyOwner
+    function burn(address who, uint value) onlyAdmin
 {
         if (value<=balances[who])
         {
         balances[who] = balances[who].sub(value);
         }
-        else{throw;}
+        else{}
 }
 
     function transferFrom(address _from, address _to, uint _value) returns (bool success)
@@ -145,12 +145,12 @@ contract kekoin is permissions
 
 contract sales is kekoin
 {
-    uint public coef = 1000000000000;
+    uint coef = 1000000000000;
     uint stage1 = 1509753600;
     uint stage2 = 1510012800;
     uint stage3 = 1510704000;
     uint public bonus = 0;
-    bool canSale = true;
+    bool public canSale = true;
     uint public coinCount = totalSupply;
     
     function() external payable
@@ -174,7 +174,7 @@ contract sales is kekoin
         }
     else {msg.sender.transfer(msg.value);}
         } 
-    else{throw;}
+    else{}
     }}
     
     function changeCoef(uint newCoef) onlyAdmin
@@ -182,7 +182,7 @@ contract sales is kekoin
         coef = newCoef;
     }
     
-    function isSale(uint _stage1, uint bonus1, uint _stage2, uint bonus2, uint _stage3)
+    function isSale(uint _stage1, uint bonus1, uint _stage2, uint bonus2, uint _stage3) onlyAdmin
     {
         stage1 = _stage1;
         stage2 = _stage2;
@@ -198,17 +198,18 @@ contract sales is kekoin
         }
         
     }
-    function chngCoinNumber(uint num, uint _bonus)
+    
+    function chngCoinNumber(uint num, uint _bonus) onlyAdmin
     {
         coinCount = num;
         bonus = _bonus;
     }
     
-    function startSale()
+    function startSale() onlyOwner
     {
         canSale = true;
     }
-    function stopSale()
+    function stopSale() onlyOwner
     {
         canSale = false;
     }
