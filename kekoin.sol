@@ -182,16 +182,19 @@ contract sales is kekoin
         coef = newCoef;
     }
     
-    function isSale()
+    function isSale(uint _stage1, uint bonus1, uint _stage2, uint bonus2, uint _stage3)
     {
+        stage1 = _stage1;
+        stage2 = _stage2;
+        stage3 = _stage3;
         if(now >= stage1 && now <= stage2)
         {
-        bonus = 2;
+        bonus = bonus1;
         }
         
         if(now >= stage2 && now <= stage3)
         {
-        bonus = 4;
+        bonus = bonus2;
         }
         
     }
