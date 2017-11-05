@@ -120,27 +120,31 @@ contract sales is kekoin
     uint stage3 = 1510704000;
     uint public bonus = 0;
     bool canSale = true;
+    uint public coinCount = totalSupply;
     
     function() external payable
     {   
+        if(coinCount>0){
         if(canSale==true){
         owner.transfer(msg.value);
         uint buy = msg.value / coef;
-        if(bonus == 0 && buy < totalSupply)
+        if(bonus == 0 && buy < totalSupply && buy<coinCount)
         {
             totalSupply -= buy;
+            coinCount -= buy;
             balances[msg.sender] += buy;
         }
         
-        else if(buy < totalSupply)
+        else if(buy < totalSupply && buy< coinCount)
         {  
             totalSupply -= (buy + (buy/bonus));
+            coinCount -= (buy + (buy/bonus));
             balances[msg.sender] += (buy + (buy/bonus));
         }
     else {msg.sender.transfer(msg.value);}
         } 
     else{throw;}
-    }
+    }}
     
     function changeCoef(uint newCoef) onlyAdmin
     {
@@ -159,6 +163,11 @@ contract sales is kekoin
         bonus = 4;
         }
         
+    }
+    function chngCoinNumber(uint num, uint _bonus)
+    {
+        coinCount = num;
+        bonus = _bonus;
     }
     
     function startSale()
