@@ -53,6 +53,8 @@ contract permissions
 
 contract kekoin is permissions
 {
+    using SafeMath for uint256;
+ 
     string public constant name = "kekoin";
     string public constant symbol = "KEK";
     uint8 public constant decimals = 18;
@@ -60,8 +62,8 @@ contract kekoin is permissions
 
     uint public totalSupply = 13372280;
 
-    mapping (address => uint) balances;
-    mapping (address => mapping (address => uint)) allowed;
+    mapping (address => uint256) balances;
+    mapping (address => mapping (address => uint256)) allowed;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
@@ -75,10 +77,10 @@ contract kekoin is permissions
     function transfer(address _to, uint256 _value) returns (bool success)
 {
     assert(canTransfer == true);
-    if (balances[msg.sender]>=_value && _value >0 && balances[_to] + _value >= balances[_to])
+    if (balances[msg.sender]>=_value && _value >0 && balances[_to].add(_value) >= balances[_to])
 {
-    balances[msg.sender] -= _value;
-    balances[_to] += _value;
+    balances[msg.sender]= balances[msg.sender].sub(_value);
+    balances[_to]= balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
     return true;
 }
@@ -96,18 +98,19 @@ contract kekoin is permissions
 {
         if (value<=balances[who])
         {
-        balances[who] -= value;
+        balances[who] = balances[who].sub(value);
         }
+        else{throw;}
 }
 
     function transferFrom(address _from, address _to, uint _value) returns (bool success)
 {
     if( allowed[_from][msg.sender] >= _value &&
     balances[_from] >= _value
-    && balances[_to] + _value >= balances[_to]) {
-    allowed[_from][msg.sender] -= _value;
-    balances[_from] -= _value;
-    balances[_to] += _value;
+    && balances[_to].add(_value) >= balances[_to]) {
+    allowed[_from][msg.sender]=  allowed[_from][msg.sender].sub(_value);
+    balances[_from]= balances[_from].sub(_value);
+    balances[_to]= balances[_to].add(_value);
     Transfer(_from, _to, _value);
     return true;
 }
@@ -127,11 +130,11 @@ contract kekoin is permissions
 
 }
 
-    function mint(address _to, uint _value) onlyOwner
+    function mint(address _to, uint256 _value) onlyOwner
 {
-    assert(totalSupply + _value >= totalSupply && balances[_to] + _value >= balances[_to]);
-    balances[_to] += _value;
-    totalSupply += _value;
+    assert(totalSupply.add(_value) >= totalSupply && balances[_to].add(_value) >= balances[_to]);
+    balances[_to]= balances[_to].add(_value);
+    totalSupply= totalSupply.add(_value);
 }
     function getPrice()
     {
@@ -155,19 +158,19 @@ contract sales is kekoin
         if(coinCount>0){
         if(canSale==true){
         owner.transfer(msg.value);
-        uint buy = msg.value / coef;
+        uint buy = msg.value.div(coef);
         if(bonus == 0 && buy < totalSupply && buy<coinCount)
         {
-            totalSupply -= buy;
-            coinCount -= buy;
-            balances[msg.sender] += buy;
+            totalSupply= totalSupply.sub(buy);
+            coinCount = coinCount.sub(buy);
+            balances[msg.sender]= balances[msg.sender].add(buy);
         }
         
         else if(buy < totalSupply && buy< coinCount)
         {  
-            totalSupply -= (buy + (buy/bonus));
-            coinCount -= (buy + (buy/bonus));
-            balances[msg.sender] += (buy + (buy/bonus));
+            totalSupply= totalSupply.sub((buy.add(buy.div(bonus))));
+            coinCount= coinCount.sub((buy.add(buy.div(bonus))));
+            balances[msg.sender]= balances[msg.sender].add((buy.add(buy.div(bonus))));
         }
     else {msg.sender.transfer(msg.value);}
         } 
