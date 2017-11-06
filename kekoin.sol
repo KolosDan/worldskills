@@ -34,22 +34,22 @@ contract permissions
     address owner = msg.sender;
     address admin;
     
-    function changeOwner(address newOwner) onlyOwner
+    function changeOwner(address newOwner) onlyOwner //Смена владельца
     {
         owner = newOwner;
     }
 
-    modifier onlyOwner() 
+    modifier onlyOwner() // Модификатор доступа "только владелец"
     {
         require(msg.sender == owner);
         _;
     }
-    modifier onlyAdmin()
+    modifier onlyAdmin() // Модификатор доступа "администратор и владелец"
     {
         require(msg.sender == admin || msg.sender == owner);
         _;
     }
-    function addAdmin(address _admin)
+    function addAdmin(address _admin) // Смена (или) добавление администратора 
     {
         admin = _admin;
     }
@@ -74,12 +74,12 @@ contract kekoin is permissions
     event Approval(address indexed _owner, address indexed _spender, uint _value);
     
 
-    function balanceOf(address _owner) constant returns (uint256 balance)
+    function balanceOf(address _owner) constant returns (uint256 balance) // проверка баланса
     {
         return balances[_owner];
     }
 
-    function transfer(address _to, uint256 _value) returns (bool success)
+    function transfer(address _to, uint256 _value) returns (bool success) // перевод токенов
     {
         assert(canTransfer == true);
     if (balances[msg.sender]>=_value && _value >0 && balances[_to].add(_value) >= balances[_to])
@@ -91,15 +91,15 @@ contract kekoin is permissions
     }
     else {return false;}
     }
-    function startTransfer() onlyOwner
+    function startTransfer() onlyOwner // возможность переводить
     {
         canTransfer = true;
     }
-    function stopTransfer() onlyOwner
+    function stopTransfer() onlyOwner // остановка любых операций перевода
     {
         canTransfer = false;
     }
-    function burn(address who, uint value) onlyAdmin
+    function burn(address who, uint value) onlyAdmin // сжигаем токены с адреса
     {
         if (value<=balances[who])
         {
@@ -108,7 +108,7 @@ contract kekoin is permissions
         else{}
     }
 
-    function transferFrom(address _from, address _to, uint _value) returns (bool success)
+    function transferFrom(address _from, address _to, uint _value) returns (bool success) // перевод с адреса на адрес
     {
     if( allowed[_from][msg.sender] >= _value &&
     balances[_from] >= _value
@@ -123,28 +123,24 @@ contract kekoin is permissions
         return false;
     }
 
-    function approve(address _spender, uint _value) returns (bool success)
+    function approve(address _spender, uint _value) returns (bool success) // получение доступа для снятия со счета
     {
         allowed[msg.sender][_spender] = _value;
         Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    function allowance(address _owner, address _spender) constant returns (uint remaining)
+    function allowance(address _owner, address _spender) constant returns (uint remaining) // просмотр разрешенных для снятия токенов
     {
         return allowed[_owner][_spender];
 
     }
 
-    function mint(address _to, uint256 _value) onlyOwner
+    function mint(address _to, uint256 _value) onlyOwner // выпуск новых токенов
     {
         assert(totalSupply.add(_value) >= totalSupply && balances[_to].add(_value) >= balances[_to]);
         balances[_to]= balances[_to].add(_value);
         totalSupply= totalSupply.add(_value);
-    }
-    function getPrice()
-    {
-        //oraclize_query('URL',"html(https://myfin.by/crypto-rates/ethereum-rub).xpath(//*[contains(@class, 'birzha_info_head_rates')]/text())");
     }
 
 }
@@ -159,7 +155,7 @@ contract sales is kekoin
     bool public canSale = true;
     uint public coinCount = totalSupply;
     
-    function() external payable
+    function() external payable // fallback функция
     {   
         if(coinCount>0){
         if(canSale==true){
@@ -183,12 +179,12 @@ contract sales is kekoin
     else{}
     }}
     
-    function changeCoef(uint newCoef) onlyAdmin
+    function changeCoef(uint newCoef) onlyAdmin //коэффициент для смены стоимости токена
     {
         coef = newCoef;
     }
     
-    function isSale(uint _stage1, uint bonus1, uint _stage2, uint bonus2, uint _stage3) onlyAdmin
+    function isSale(uint _stage1, uint bonus1, uint _stage2, uint bonus2, uint _stage3) onlyAdmin // распродажа токенов в несколько этапов
     {
         stage1 = _stage1;
         stage2 = _stage2;
@@ -205,17 +201,17 @@ contract sales is kekoin
         
     }
     
-    function chngCoinNumber(uint num, uint _bonus) onlyAdmin
+    function chngCoinNumber(uint num, uint _bonus) onlyAdmin // смена количества распродаваемых токенов
     {
         coinCount = num;
         bonus = _bonus;
     }
     
-    function startSale() onlyOwner
+    function startSale() onlyOwner // начало продаж
     {
         canSale = true;
     }
-    function stopSale() onlyOwner
+    function stopSale() onlyOwner // остановка продаж
     {
         canSale = false;
     }
