@@ -36,18 +36,18 @@ contract permissions
     
     function changeOwner(address newOwner) onlyOwner
     {
-    owner = newOwner;
+        owner = newOwner;
     }
 
     modifier onlyOwner() 
     {
-    require(msg.sender == owner);
-    _;
+        require(msg.sender == owner);
+        _;
     }
     modifier onlyAdmin()
     {
-    require(msg.sender == admin || msg.sender == owner);
-    _;
+        require(msg.sender == admin || msg.sender == owner);
+        _;
     }
     function addAdmin(address _admin)
     {
@@ -76,18 +76,18 @@ contract kekoin is permissions
 
     function balanceOf(address _owner) constant returns (uint256 balance)
     {
-    return balances[_owner];
+        return balances[_owner];
     }
 
     function transfer(address _to, uint256 _value) returns (bool success)
     {
-    assert(canTransfer == true);
+        assert(canTransfer == true);
     if (balances[msg.sender]>=_value && _value >0 && balances[_to].add(_value) >= balances[_to])
     {
-    balances[msg.sender]= balances[msg.sender].sub(_value);
-    balances[_to]= balances[_to].add(_value);
-    Transfer(msg.sender, _to, _value);
-    return true;
+        balances[msg.sender]= balances[msg.sender].sub(_value);
+        balances[_to]= balances[_to].add(_value);
+        Transfer(msg.sender, _to, _value);
+        return true;
     }
     else {return false;}
     }
@@ -103,7 +103,7 @@ contract kekoin is permissions
     {
         if (value<=balances[who])
         {
-        balances[who] = balances[who].sub(value);
+            balances[who] = balances[who].sub(value);
         }
         else{}
     }
@@ -112,34 +112,35 @@ contract kekoin is permissions
     {
     if( allowed[_from][msg.sender] >= _value &&
     balances[_from] >= _value
-    && balances[_to].add(_value) >= balances[_to]) {
-    allowed[_from][msg.sender]=  allowed[_from][msg.sender].sub(_value);
-    balances[_from]= balances[_from].sub(_value);
-    balances[_to]= balances[_to].add(_value);
-    Transfer(_from, _to, _value);
-    return true;
+    && balances[_to].add(_value) >= balances[_to]) 
+    {
+        allowed[_from][msg.sender]=  allowed[_from][msg.sender].sub(_value);
+        balances[_from]= balances[_from].sub(_value);
+        balances[_to]= balances[_to].add(_value);
+        Transfer(_from, _to, _value);
+        return true;
     }
-    return false;
+        return false;
     }
 
     function approve(address _spender, uint _value) returns (bool success)
     {
-    allowed[msg.sender][_spender] = _value;
-    Approval(msg.sender, _spender, _value);
-    return true;
+        allowed[msg.sender][_spender] = _value;
+        Approval(msg.sender, _spender, _value);
+        return true;
     }
 
     function allowance(address _owner, address _spender) constant returns (uint remaining)
     {
-    return allowed[_owner][_spender];
+        return allowed[_owner][_spender];
 
     }
 
     function mint(address _to, uint256 _value) onlyOwner
     {
-    assert(totalSupply.add(_value) >= totalSupply && balances[_to].add(_value) >= balances[_to]);
-    balances[_to]= balances[_to].add(_value);
-    totalSupply= totalSupply.add(_value);
+        assert(totalSupply.add(_value) >= totalSupply && balances[_to].add(_value) >= balances[_to]);
+        balances[_to]= balances[_to].add(_value);
+        totalSupply= totalSupply.add(_value);
     }
     function getPrice()
     {
