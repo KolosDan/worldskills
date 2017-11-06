@@ -56,12 +56,12 @@ contract permissions
 }
 
 // Главный контракт
-contract kekoin is permissions
+contract zharcoin is permissions
 {
     using SafeMath for uint256;
  
-    string public constant name = "kekoin";
-    string public constant symbol = "KEK";
+    string public constant name = "Zharcoin";
+    string public constant symbol = "ZHR";
     uint8 public constant decimals = 0;
     bool public canTransfer = true ;
 
