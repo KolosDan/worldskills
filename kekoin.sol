@@ -145,7 +145,7 @@ contract zharcoin is permissions
 
 }
 // Контракт для реализации продажи токенов
-contract sales is kekoin
+contract sales is zharcoin
 {
     uint coef = 1000000000000;
     uint stage1 = 1509753600;
