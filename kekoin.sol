@@ -199,7 +199,7 @@ contract sales is kekoin
         bonus = bonus2;
     }
     
-        function getRate() public returns(uint) // возврат текущего курса токена к эфиру
+        function getRate() public constant returns(uint) // возврат текущего курса токена к эфиру
     {
         return 1000000000000000000/coef;
     }
